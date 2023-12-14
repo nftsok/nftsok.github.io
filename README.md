@@ -1,1 +1,1 @@
-# nftsok.github.io
+# https://nftsok.github.io
