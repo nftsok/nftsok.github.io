@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>敏感信息泄漏</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../../css/element-ui@2.13.0-theme-chalk-index.css">
+    <link rel="stylesheet" type="text/css" href="../../css/common.css">
+</head>
+<body>
+<div id="app" class="ml20 pr20 main-content">
+    <el-row>
+        <el-col :span="24">
+            <el-breadcrumb separator-class="el-icon-arrow-right" class="title">
+                <el-breadcrumb-item :to="{ path: '/' }">敏感信息扫描</el-breadcrumb-item>
+                <el-breadcrumb-item>敏感信息列表</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-col>
+    </el-row>
+    <el-divider content-position="left"></el-divider>
+    <el-row class="mt10">
+        <template>
+            <el-table
+                    ref="multipleTable"
+                    stripe
+                    border
+                    v-loading="loading"
+                    :data="tableData">
+                <!-- <el-table-column type="expand">
+                    <template slot-scope="props">
+                        <el-form label-position="left" inline class="demo-table-expand" style="margin-left: 20px; width: 70%;">
+                            <el-form-item label="名称">
+                                <span>{{ props.row.Name }}</span>
+                            </el-form-item>
+                            <el-form-item label="说明">
+                                <p>{{ props.row.Description }}</p>
+                            </el-form-item>
+                            <el-form-item label="文件路径">
+                                <span>{{ props.row.Path }}</span>
+                            </el-form-item>
+                            <el-form-item label="代码位置">
+                                <span>{{ props.row.Position }}</span>
+                            </el-form-item>
+                        </el-form>
+                    </template>
+                </el-table-column> -->
+                <el-table-column
+                        prop="RuleID"
+                        label="规则"
+                        align="left"
+                        width="150">
+                </el-table-column>
+                <el-table-column
+                        label="警告等级"
+                        prop="RuleID"
+                        align="center"
+                        >
+                        <template slot-scope="props">
+                            <el-tag v-if="props.row.RuleID=='generic-api-key'" type="danger">high
+                            </el-tag>
+                            <el-tag v-if="props.row.RuleID=='0'" type="danger">F
+                            </el-tag>
+                        </template>
+                </el-table-column>
+                <el-table-column
+                        label="文件路径"
+                        prop="File"
+                        align="left">
+                </el-table-column>
+                <!-- <el-table-column
+                        label="提交ID"
+                        prop="Commit"
+                        align="left">
+                </el-table-column>
+                <el-table-column
+                        label="Message"
+                        prop="Message"
+                        align="center">
+                </el-table-column> -->
+                <el-table-column
+                        label="操作"
+                        align="center"
+                        min-width="80px">
+                    <template slot-scope="scope">
+                        <el-button
+                                size="mini"
+                                type="danger"
+                                @click="openCodeFile(scope.$index, scope.row)">
+                                打开文件
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </template>
+    </el-row>
+    <el-row class="mt20 mb20">
+        <el-pagination
+                background
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="dataTotal"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="10"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange">
+        </el-pagination>
+    </el-row>
+</div>
+<script src="../../js/jquery.3.2.1.min.js"></script>
+<script src="../../js/vue-v2.6.11.js"></script>
+<script src="../../js/element-ui@2.13.0-index.js"></script>
+<script src="../../js/config.js"></script>
+<script src="../../js/common.js"></script>
+<script src="../../js/apiUrl.js"></script>
+<script src="../../js/md5.js"></script>
+<script>
+    let vueApplication = new Vue({
+        el: "#app",
+        directives: {
+            'el-select-loadmore': {
+                bind(el, binding) {
+                    // 获取element-ui定义好的scroll盒子
+                    const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+                    SELECTWRAP_DOM.addEventListener('scroll', function () {
+                        /**
+                         * scrollHeight 获取元素内容高度(只读)
+                         * scrollTop 获取或者设置元素的偏移值,常用于, 计算滚动条的位置, 当一个元素的容器没有产生垂直方向的滚动条, 那它的scrollTop的值默认为0.
+                         * clientHeight 读取元素的可见高度(只读)
+                         * 如果元素滚动到底, 下面等式返回true, 没有则返回false:
+                         * ele.scrollHeight - ele.scrollTop === ele.clientHeight;
+                         */
+                        const condition = this.scrollHeight - this.scrollTop <= this.clientHeight;
+                        if (condition) {
+                            binding.value();
+                        }
+                    });
+                }
+            }
+        },
+        data() {
+            return {
+                loading: true,//遮罩
+                // searchConditions: {
+                //     //警告等级
+                //     warningLevel: '',
+                //     //语言
+                //     language: '',
+                // },
+                // //select的option数组
+                // selectOptions: {
+                //     //
+                //     warningList: [],
+                //     //
+                //     languageList: [],
+                // },
+                //page相关参数
+                page: {
+                    pageSize: 10,
+                    currentPage: 1,
+                },
+                //表格数据
+                tableData: [],
+                //数据总数
+                dataTotal: '',
+            }
+        },
+        methods: {
+            //通用关闭弹窗,传入ref
+            cancelPop(ref) {
+                if (ref) {
+                    this.$refs[ref].doClose();
+                }
+            },
+            //获取漏洞扫描结果列表
+            getTableData() {
+                const that = this;
+                that.loading = true;
+                // 使用getjson读取数据
+                $.getJSON("../../data/sensitive_information.json", function(data) {
+                    // 将读取到的json数据赋值给rows
+                    currentPage = that.page.currentPage
+                    pageSize = that.page.pageSize
+
+                    that.tableData = data.slice((currentPage-1) * pageSize,     currentPage * pageSize);
+                    that.dataTotal = data.length;//总数
+                    
+                    that.loading = false;
+                }, err => {
+                    this.$message("something error!")
+                });
+                
+            },
+            //打开代码文件
+            openCodeFile(index, row) {
+                const that = this;
+                getPostData(apiUrls.basicData.resetPassword, {
+                    id: row.studentNo
+                }).then(data => {
+                    this.$message({
+                        message: '重置成功',
+                        type: 'success'
+                    });
+                    that.getTableData();//重新请求表格数据
+                }, err => {
+                    that.$message(err);
+                });
+            },
+            //重置当前页
+            searchTableData() {
+                this.page.pageSize = 10;
+                this.page.currentPage = 1;
+                this.getTableData();
+            },
+            //获取当前页pageSize
+            handleSizeChange(val) {
+                this.page.pageSize = val;
+                this.getTableData()
+            },
+            //获取当前页currentPage
+            handleCurrentChange(val) {
+                this.page.currentPage = val;
+                this.getTableData()
+            },
+            //清空搜索项
+            emptySearchCondition() {
+                for (let key in this.searchConditions) {
+                    this.searchConditions[key] = '';
+                }
+                //页数置空
+                this.page.currentPage = 1;
+                this.page.pageSize = 10;
+                this.getTableData();//获取表格数据
+            },
+            //搜索条件改变的时候page置空
+            initPageParam() {
+                this.page.currentPage = 1;
+            }
+        },
+        mounted() {
+            this.getTableData();//获取表格数据
+        }
+    })
+</script>
+</body>
+</html>

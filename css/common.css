@@ -1,0 +1,114 @@
+	body{
+			margin:0;
+	}
+	html,body,#app{
+  			height: 100%;
+	}
+
+	/*通用必看start*/
+	.mt20{
+		margin-top: 20px;
+	 }
+	.mt10{
+		margin-top: 10px;
+	}
+	.mr20{
+		margin-right: 20px;
+	}
+	.pr20 {
+		padding-right: 20px;
+	}
+	.ml20{
+		margin-left: 20px;
+	}
+	.mb20{
+		margin-bottom: 20px;
+	}
+	.main-content{
+		/*主内容用这个class，防止内容缩小掉下来*/
+		min-width: 1110px;
+		overflow-x: hidden;
+	}
+	.title{
+		font-size: 18px;
+		padding: 20px 0;/*每页标题*/
+	}
+	.filter-condition .el-select,.filter-condition .el-input{
+		width: 100%;/*否则和input不一样长*/
+	}
+	.clear-gutter{
+		margin-right: 0!important;/*使用gutter的el-row用此类消除gutter的影响*/
+		/*margin-right: 0!important;!*使用gutter的el-row用此类消除gutter的影响*!*/
+	}
+	.el-divider--horizontal{
+		margin: 12px 0!important;
+	}
+
+	/*保证dialog全屏后输入框正常*/
+	/*.el-dialog__body{*/
+	/*	width: 800px!important;*/
+	/*	margin: 0 auto;*/
+	/*	text-align: center;*/
+	/*}*/
+	.el-dialog__body .el-textarea,.el-dialog__body .el-select,.el-dialog__body .el-input{
+		width:40%;
+	}
+	.el-dialog__body .el-select .el-input{
+		width:100% !important;
+	}
+	.el-dialog__footer{
+		text-align: left!important;
+		margin-left: 200px;
+	}
+	/*通用必看end*/
+
+
+
+
+	.el-table--border th{
+		border:0;
+	}
+	.el-table--border td{
+		border-right:0;
+	}
+	.pageNavigation{
+		float: right;
+	    padding: 0;
+	    margin-top: 30px;
+	    margin-bottom: 30px;
+	}
+	.demo-table-expand {
+		font-size: 0;
+	}
+	.demo-table-expand label {
+		width: 90px;
+		color: #99a9bf;
+	}
+	.demo-table-expand .el-form-item {
+		margin-right: 0;
+		margin-bottom: 0;
+		width: 50%;
+	}
+	.downList{
+		margin: 0 auto;
+		width:80%;
+	}
+	.el-table__expanded-cell[class*=cell]{
+		padding: 20px 0;
+	}
+	.firstTalkItem{
+		margin-left:90px;
+	}
+	.demo-table-expand .el-form-item{
+		width: 100%;
+	}
+	.openTalkItem{
+		margin: 10px 0;
+		width:50%;
+		display: inline-block;
+	}
+	.TalkItems{
+		cursor: pointer;
+		margin-left: 30px;
+		color:#409EFF;
+	}

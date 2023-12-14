@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>NFT SOK</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/element.css">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+    <style>
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- <el-row class="tac" style="height: 70px;background: linear-gradient(to right, #FFFDE4, #005AA7)"> -->
+    <el-row class="tac" style="height: 70px;background: linear-gradient(to right, #FFFDE4, #005AA7)">
+        
+        <el-col :span="16" >
+            <div class="title" style="color: black">
+                <!-- <img src="../" style="width: 280px" /> -->
+                <!-- 在el-row的最下方 -->
+                <span style="font-size: 25px">NFT SOK</span>
+            </div>
+        </el-col>
+        <!-- <el-col :span="8">
+            <div class="user">
+                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" style="vertical-align: middle"></el-avatar>
+                <el-dropdown @command="handleCommand">
+                    <el-button type="primary" style="padding: 6px 10px">
+                        {{userTypeName}} {{userName}}<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
+
+                </el-dropdown>
+            </div>
+        </el-col> -->
+    </el-row>
+    <el-row class="tac">
+        <el-col :span="widthOfLeftList" id="leftBar" style="background-color: #F2F6FC;">
+            <el-radio-group v-model="isCollapse" style="width: 64px">
+                <el-radio-button :label="false" @click.native.prevent="changeLeftList()">
+                    <i :class="isLeftListActive?'el-icon-s-unfold':'el-icon-s-fold'"></i>
+                </el-radio-button>
+            </el-radio-group>
+
+            <el-menu
+                    collapse-transition=false
+                    default-active={{isSelected}}
+                    class="el-menu-vertical-demo"
+                    unique-opened=true
+                    :collapse="isCollapse"
+                    @select="handleSelect"
+                    @open="handleOpen"
+                    @close="handleClose">
+                <el-menu-item index="test/test.html">
+                    <i class="el-icon-s-home"></i>
+                    <span slot="title" class="leftTitle">Home</span>
+                </el-menu-item>
+                <el-menu-item index="dependencyVulnerability/dependencyVulnerability.html">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title" class="leftTitle">NFT Vulnerability</span>
+                </el-menu-item>
+
+
+                <!-- <el-submenu index="2">
+                    <template slot="title">
+                        <i class="el-icon-shopping-bag-1"></i>
+                        <span slot="title" class="leftTitle">个人中心</span>
+                    </template>
+                    <el-menu-item-group>
+                        <el-menu-item index="personalCenter/personalCenter.html">个人中心</el-menu-item>
+                        <!--                        <el-menu-item index="2-2">团学活动经历</el-menu-item>-->
+                    </el-menu-item-group>
+                </el-submenu>
+            </el-menu>
+        </el-col>
+        <iframe :src="urlPath" id="thisPage" :class="widthOfIframe" style="border:0">
+
+        </iframe>
+    </el-row>
+</div>
+<!--引入vue-->
+<script src="../js/vue-v2.6.11.js"></script>
+<!-- 引入组件库 -->
+<script src="../js/element.js"></script>
+<script src="../js/getUrlParams.js"></script>
+<script>
+    let Main = new Vue({
+        el:"#app",
+        data() {
+            const validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.changePsdForm.checkPassword !== '') {
+                        this.$refs.changePsdForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            const validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.changePsdForm.newPassword) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                isShow:{
+                    changePsdDialog: false,
+                },
+                isCollapse: false,
+                isLeftListActive:false,
+                isOpen:0,
+                isSelected:1,
+                urlPath:"welcomePage.html",
+                widthOfLeftList:4,
+                widthOfIframe:"el-col-20",
+                userName:'',
+                userId:'',
+                userIdentity:'',
+                userTypeName:'',
+                changePsdForm:{
+                    oldPassword:'',
+                    newPassword:'',
+                    checkPassword:''
+                },
+                rules: {
+                    oldPassword:[
+                        { required: true, message: '旧密码不能为空', trigger: 'blur'},
+                    ],
+                    newPassword: [
+                        { validator: validatePass, trigger: 'blur' },
+                        { required: true, message: '', trigger: 'blur'},
+                    ],
+                    checkPassword: [
+                        { validator: validatePass2, trigger: 'blur' },
+                        { required: true, message: '', trigger: 'blur'},
+                    ],
+                },
+            };
+        },
+        methods: {
+            //退出登录
+            handleCommand(param) {
+                switch (param) {
+                    //退出登录
+                    case 'logout':{
+                        this.logout();
+                        break;
+                    }
+                    //修改个人信息。密码之类的。。先保留
+                    case 'userInfo':{
+                        break;
+                    }
+                    //修改密码
+                    case 'psd':{
+                        this.isShow.changePsdDialog = true;
+                        break;
+                    }
+                    default:{
+
+                    }
+                }
+
+            },
+            //退出登录
+            logout(){
+                localStorage.clear();
+                location.href = 'login.html';
+            },
+            handleOpen(key, keyPath) {
+                this.isOpen=key;
+            },
+            handleClose(key, keyPath) {
+                //console.log(key, keyPath);
+            },
+            handleSelect(key,keyPath){
+                this.isSelected=key;
+                // console.log(keyPath);
+                if (keyPath.length!=1){
+                    this.urlPath=keyPath[1].toString();
+                }else{
+                    this.urlPath=keyPath[0].toString();
+                }
+                // console.log(this.urlPath);
+                //$("#thisPage").src=this.urlPath;
+            },
+            changeLeftList:function(){
+                this.isCollapse=!this.isCollapse;
+                this.isLeftListActive=!this.isLeftListActive;
+                if(this.isCollapse){
+                    this.widthOfLeftList=1;
+                    this.widthOfIframe="el-col-23";
+                }
+                else {
+                    this.widthOfLeftList=4;
+                    this.widthOfIframe="el-col-20"
+                }
+            },
+        },
+        mounted(){
+            this.userName =  localStorage.getItem('userName');
+            this.userId =  localStorage.getItem('userId');
+            this.userIdentity =  localStorage.getItem('userIdentity');
+            this.userTypeName = localStorage.getItem('userTypeName');
+            
+            localStorage.setItem('userId', this.userId);//将登录人id放在localstorage中
+            localStorage.setItem('userName', this.userName);//将登录人Name放在localstorage中
+            localStorage.setItem('userTypeName', this.userTypeName);//将人员类型名称放在localstorage中
+            localStorage.setItem('userTypeId', this.userIdentity);//将人员类型id放在localstorage中
+            console.log(this.userId);
+            console.log(this.userName);
+            /**
+             * iframe-宽高自适应显示
+             */
+            function changeIframeHeight(){
+                const mobsf = document.getElementById('thisPage');
+                const deviceHeight = document.body.clientHeight;
+                mobsf.style.height = (Number(deviceHeight)-70) + 'px'; //数字是页面布局高度差
+            }
+            function changeLeftBarHeight(){
+                const mobsf = document.getElementById('leftBar');
+                const deviceHeight = document.body.clientHeight;
+                mobsf.style.height = (Number(deviceHeight)-70) + 'px'; //数字是页面布局高度差
+            }
+            changeIframeHeight();
+            changeLeftBarHeight();
+            window.onresize = function(){
+                changeIframeHeight();
+                changeLeftBarHeight();
+            }
+        },
+    });
+</script>
+</body>
+</html>

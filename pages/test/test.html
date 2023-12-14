@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>NFT SOK</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../../css/element-ui@2.13.0-theme-chalk-index.css">
+    <link rel="stylesheet" type="text/css" href="../../css/common.css">
+</head>
+<body>
+<div id="app" class="ml20 pr20 main-content">
+    <el-row>
+        <el-col :span="24">
+            <el-breadcrumb separator-class="el-icon-arrow-right" class="title">
+                <el-breadcrumb-item :to="{ path: '/' }">NFT SOK</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-col>
+    </el-row>
+    <el-divider content-position="left"></el-divider>
+    <el-row class="mt10">
+        <template>
+
+        </template>
+    </el-row>
+    <div class="image-text-container">
+        <img class="left-image" src="OnlyLifeCycle.png" alt="Image">
+        <div class="divider"></div>
+        <img class="left-image" src="framework.png" alt="Image"> 
+    </div>
+    <!-- 水平分割线 -->
+    <el-divider content-position="left"></el-divider>
+    <div class="right-text-container">
+        <div class="right-text">NFT SoK data. We choose to disclose the data to better promote community research on NFT security issues. </div>
+
+    </div>
+
+</div>
+
+<script src="../../js/jquery.3.2.1.min.js"></script>
+<script src="../../js/vue-v2.6.11.js"></script>
+<script src="../../js/element-ui@2.13.0-index.js"></script>
+<script src="../../js/config.js"></script>
+<!-- <script src="../../js/common.js"></script> -->
+<!-- <script src="../../js/apiUrl.js"></script> -->
+<script src="../../js/md5.js"></script>
+<script>
+    // window.onload = function() {
+    //         // 页面加载完成后，两张图片都会显示
+    //         var images = document.querySelectorAll('.left-image');
+    //         images.forEach(function(image) {
+    //             image.style.visibility = 'visible';
+    //         });
+    //     };
+    let vueApplication = new Vue({
+        el: "#app",
+        directives: {
+            'el-select-loadmore': {
+                bind(el, binding) {
+                    // 获取element-ui定义好的scroll盒子
+                    const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+                    SELECTWRAP_DOM.addEventListener('scroll', function () {
+                        /**
+                         * scrollHeight 获取元素内容高度(只读)
+                         * scrollTop 获取或者设置元素的偏移值,常用于, 计算滚动条的位置, 当一个元素的容器没有产生垂直方向的滚动条, 那它的scrollTop的值默认为0.
+                         * clientHeight 读取元素的可见高度(只读)
+                         * 如果元素滚动到底, 下面等式返回true, 没有则返回false:
+                         * ele.scrollHeight - ele.scrollTop === ele.clientHeight;
+                         */
+                        const condition = this.scrollHeight - this.scrollTop <= this.clientHeight;
+                        if (condition) {
+                            binding.value();
+                        }
+                    });
+                }
+            }
+        },
+        data() {
+            return {
+                loading: true,//遮罩
+                //page相关参数
+                page: {
+                    pageSize: 10,
+                    currentPage: 1,
+                },
+                //数据总数
+                dataTotal: '',
+            }
+        },
+        methods: {
+            //通用关闭弹窗,传入ref
+            cancelPop(ref) {
+                if (ref) {
+                    this.$refs[ref].doClose();
+                }
+            },
+            //获取敏感信息扫描结果列表
+            getTableData() {
+                // read json => list
+                // this.tabledata = []
+            },
+            //打开代码文件
+            openCodeFile(index, row) {
+                const that = this;
+                getPostData(apiUrls.basicData.resetPassword, {
+                    id: row.studentNo
+                }).then(data => {
+                    this.$message({
+                        message: '重置成功',
+                        type: 'success'
+                    });
+                    that.getTableData();//重新请求表格数据
+                }, err => {
+                    that.$message(err);
+                });
+            },
+            //重置当前页
+            searchTableData() {
+                this.page.pageSize = 10;
+                this.page.currentPage = 1;
+                this.getTableData();
+            },
+            //获取当前页pageSize
+            handleSizeChange(val) {
+                this.page.pageSize = val;
+                this.getTableData();//重新请求表格数据
+            },
+            //获取当前页currentPage
+            handleCurrentChange(val) {
+                this.page.currentPage = val;
+                this.getTableData();//重新请求表格数据
+            },
+            //清空搜索项
+            emptySearchCondition() {
+                for (let key in this.searchConditions) {
+                    this.searchConditions[key] = '';
+                }
+                //页数置空
+                this.page.currentPage = 1;
+                this.page.pageSize = 10;
+                this.getTableData();//获取表格数据
+            },
+            //搜索条件改变的时候page置空
+            initPageParam() {
+                this.page.currentPage = 1;
+            },
+            //点击链接
+            Click_link(row) {
+	            window.open(row.link, '_blank');
+            },  
+            // 日期排序
+            customSort_date(o1, o2) {
+                const parts1 = o1.date.split('-');
+                if (parts1.length === 3) {
+                const year1 = parts1[0];
+                const month1 = parts1[1].padStart(2, '0');
+                const day1 = parts1[2].padStart(2, '0');
+                const date1_pre = `${year1}-${month1}-${day1}`;
+                }
+                const parts2 = o2.date.split('-');
+                if (parts2.length === 3) {
+                    const year2 = parts2[0];
+                    const month2 = parts2[1].padStart(2, '0');
+                    const day2 = parts2[2].padStart(2, '0');
+                    const date2_pre = `${year2}-${month2}-${day2}`;
+                }
+
+                const date1 = new Date(date1_pre);
+                const date2 = new Date(date2_pre);
+                // 修改原始props
+                o1.date = date1;
+                o2.date = date2;
+                return date1 - date2;
+            },
+            formatDate(dateString) {
+                const parts = dateString.split('-');
+                if (parts.length === 3) {
+                const year = parts[0];
+                const month = parts[1].padStart(2, '0');
+                const day = parts[2].padStart(2, '0');
+                return `${year}-${month}-${day}`;
+                }
+                return dateString; // 返回原始日期字符串，如果格式不符合
+            },
+            // 金额格式化
+            formatMoney(row, column, cellValue) {
+                // 且每3位以,分隔
+                return "$" + cellValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+               
+            },
+        },
+        mounted() {
+            this.getTableData();//获取表格数据
+            const that = this;
+            that.loading = false;
+        }
+    })
+</script>
+</body>
+</html>
+
+<style>
+    .no-wrap {
+        white-space: nowrap;
+        width: 200px; /* 根据您的需要调整宽度 */
+        margin-right: 10px; /* 设置间距 */
+    }
+    .custom-span {
+        margin-right: 0;
+        margin-bottom: 0;
+        width: auto;
+        white-space: normal;
+        display: block; /* 设置为块级元素 */
+    }
+    .vertical-align {
+        display: block; /* 将元素放置在单独的行 */
+        margin-bottom: 5px; /* 设置垂直间距 */
+    }
+    .no-color {
+        color: inherit; /* 继承父元素的文本颜色 */
+    }
+    .image-text-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.left-image {
+  max-width: 50%;
+}
+
+.divider {
+  border-right: 1px dashed #000;
+  height: 100%;
+  margin: 0 10px;
+  width: 2px;
+}
+.right-text-container {
+  flex: 1;
+  overflow: auto; /* 隐藏水平滚动条 */
+  padding: 10px;
+  text-align: justify;
+  /*width: 50%; /* 根据需要调整宽度 */
+
+  min-height: 100px; /* 根据需要调整最小高度 */
+}
+
+</style>
